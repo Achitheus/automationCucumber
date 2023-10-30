@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <appender name = "console" class = "ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%-5level [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name = "file" class = "ch.qos.logback.core.FileAppender" append="false">
+        <file>${user.dir}\log\automationCucumber.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%date %-5level [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="pages.ru.yandex.market" level="info"/>
+    <logger name="ru.yandex" level="debug"/>
+
+    <root level="error">
+        <appender-ref ref="file"/>
+        <appender-ref ref="console"/>
+    </root>
+</configuration>
