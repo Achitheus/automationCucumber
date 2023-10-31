@@ -88,11 +88,22 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.4.11</version>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner</artifactId>
+            <version>1.0.12</version>
         </dependency>
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -140,7 +151,7 @@
 
     <profiles>
         <profile>
-            <id>dev</id>
+            <id>env-dev</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -151,7 +162,7 @@
             </properties>
         </profile>
         <profile>
-            <id>test</id>
+            <id>env-test</id>
             <properties>
                 <profile.id>test</profile.id>
                 <browser.headless>true</browser.headless>

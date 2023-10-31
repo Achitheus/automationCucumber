@@ -5,7 +5,7 @@ import org.aeonbits.owner.Config;
 @Config.LoadPolicy(Config.LoadType.MERGE)
 @Config.Sources({"system:properties",
         "system:env",
-        "file:src/test/resources/activeProfile.properties"})
+        "file:target/test-classes/activeProfile.properties"})
 public interface TestProperties extends Config {
     @Key("chrome.dir")
     String chromeDir();
