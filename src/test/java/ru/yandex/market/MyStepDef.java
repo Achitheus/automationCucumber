@@ -32,10 +32,11 @@ import static com.codeborne.selenide.Condition.not;
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.Selenide.page;
 import static helpers.AllureCustom.markOuterStepAsFailedAndStop;
+import static helpers.Properties.testProperties;
 import static io.qameta.allure.Allure.step;
 
 public class MyStepDef {
-    public final Logger log = LoggerFactory.getLogger(MyStepDef.class);
+    public static final Logger log = LoggerFactory.getLogger(MyStepDef.class);
     private final YandexMain yandexMain = page(YandexMain.class);
     private final MarketMain marketMain = page(MarketMain.class);
     private final CategoryGoods categoryGoods = page(CategoryGoods.class);
@@ -47,17 +48,21 @@ public class MyStepDef {
 
     @BeforeAll
     public static void beforeScenario() {
+        log.info("Current active profile name is: " + testProperties.activeProfileName());
         SelenideLogger.addListener("Allure Selenide", new AllureSelenide()
                 .includeSelenideSteps(false));
         ChromeOptions options = new ChromeOptions();
-        Configuration.headless = true;
         Configuration.browser = "chrome";
         Configuration.timeout = 6_000;
         Configuration.browserSize = "1920x1080";
         Configuration.holdBrowserOpen = true;
-//        Configuration.browserCapabilities = options;
-//        options.addArguments("--user-data-dir=" + System.getProperty("user.dir") + "\\chrome-profiles");
-//        options.addArguments("--profile-directory= profileForTests");
+        Configuration.browserCapabilities = options;
+        Configuration.headless = testProperties.beHeadless();
+        if(testProperties.useChromeProfile()) {
+            options.addArguments("--user-data-dir=" + testProperties.chromeDir());
+            options.addArguments("--profile-directory=" + testProperties.profileDir());
+        }
+
     }
 
     @Step("Закрываю браузер")
