@@ -11,73 +11,100 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
-        <cucumber.version>7.14.0</cucumber.version>
         <allure.version>2.24.0</allure.version>
+        <cucumber.version>7.14.0</cucumber.version>
+        <junit-jupiter.version>5.10.0</junit-jupiter.version>
         <aspectj.version>1.9.19</aspectj.version>
         <selenide.version>6.19.1</selenide.version>
-        <junit-platform.version>1.10.0</junit-platform.version>
     </properties>
 
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-bom</artifactId>
+                <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
+    <dependencies>
         <dependency>
             <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-selenide</artifactId>
-            <version>2.24.0</version>
+            <artifactId>allure-junit-platform</artifactId>
+            <scope>test</scope>
         </dependency>
-
-
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-cucumber7-jvm</artifactId>
-            <version>${allure.version}</version>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-junit5</artifactId>
-            <version>${allure.version}</version>
+            <artifactId>allure-selenide</artifactId>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>${cucumber.version}</version>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>${cucumber.version}</version>
+            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>selenide</artifactId>
             <version>${selenide.version}</version>
+            <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <version>${junit-platform.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.4.11</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner</artifactId>
+            <version>1.0.12</version>
+        </dependency>
     </dependencies>
 
-
     <build>
-        <plugins>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
 
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -85,7 +112,7 @@
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
                     <argLine>
-                        -Dfile.encoding=UTF-8
+                        -Dfile.encoding=${project.reporting.outputEncoding}
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
                     <systemPropertyVariables>
@@ -100,7 +127,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
@@ -110,19 +136,39 @@
                     <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>env-dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <profile.id>dev</profile.id>
+                <browser.headless>false</browser.headless>
+                <use.chrome.profile>true</use.chrome.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>env-test</id>
+            <properties>
+                <profile.id>test</profile.id>
+                <browser.headless>true</browser.headless>
+                <use.chrome.profile>false</use.chrome.profile>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
