@@ -51,19 +51,20 @@ public class MyStepDef {
         log.info("Current active profile name is: " + testProperties.activeProfileName());
         SelenideLogger.addListener("Allure Selenide", new AllureSelenide()
                 .includeSelenideSteps(false));
-        ChromeOptions options = new ChromeOptions();
-        Configuration.browser = "chrome";
         Configuration.timeout = 6_000;
-        Configuration.browserSize = "1920x1080";
-        Configuration.holdBrowserOpen = true;
-        Configuration.browserCapabilities = options;
         Configuration.headless = testProperties.beHeadless();
         if (testProperties.activeProfileName().equals("env-test")) {
             Configuration.remote = "http://localhost:4444/wd/hub";
         }
-        if(testProperties.useChromeProfile()) {
+        if (!testProperties.beHeadless()) {
+            Configuration.browserSize = "1920x1080";
+            Configuration.holdBrowserOpen = true;
+        }
+        if (testProperties.useChromeProfile()) {
+            ChromeOptions options = new ChromeOptions();
             options.addArguments("--user-data-dir=" + testProperties.chromeDir());
             options.addArguments("--profile-directory=" + testProperties.profileDir());
+            Configuration.browserCapabilities = options;
         }
 
     }
@@ -71,7 +72,7 @@ public class MyStepDef {
     @Step("Закрываю браузер, если используется")
     @After
     public void afterScenario() {
-        if(testProperties.beHeadless()){
+        if (testProperties.beHeadless()) {
             return;
         }
         Selenide.closeWindow();
@@ -94,7 +95,7 @@ public class MyStepDef {
 
     @When("фильтр {string} установлен значениями: {listString}")
     public void установитьФильтрПеречислений(String filterName, List<String> checkboxNames) {
-         categoryGoods.setEnumFilter(filterName, new HashSet<>(checkboxNames));
+        categoryGoods.setEnumFilter(filterName, new HashSet<>(checkboxNames));
     }
 
     @Then("все названия товаров содержат одно из ключевых слов: {listString}")
@@ -113,7 +114,7 @@ public class MyStepDef {
             step("На стр. " + infinityCyclePreventer + " все названия товаров " +
                             "соответствуют фильтру \"Производитель\": " + checkWords,
                     badNameExists ? Status.FAILED : Status.PASSED);
-            if(badNameExists) {
+            if (badNameExists) {
                 Assertions.fail("На стр. " + infinityCyclePreventer + " наименование товара \""
                         + badName.getText() + "\" не соответствует фильтру \"Производитель\". " +
                         "Слова проверки: " + checkWords
@@ -129,7 +130,7 @@ public class MyStepDef {
         boolean cityIsCorrect = city.equals(actualCity);
         step("Ожидался город: \"" + city + "\", а по факту: " + actualCity,
                 cityIsCorrect ? Status.PASSED : Status.FAILED);
-        if(!cityIsCorrect){
+        if (!cityIsCorrect) {
             markOuterStepAsFailedAndStop();
         }
 
