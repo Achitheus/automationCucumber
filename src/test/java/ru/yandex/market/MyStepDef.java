@@ -65,9 +65,12 @@ public class MyStepDef {
 
     }
 
-    @Step("Закрываю браузер")
+    @Step("Закрываю браузер, если используется")
     @After
     public void afterScenario() {
+        if(testProperties.beHeadless()){
+            return;
+        }
         Selenide.closeWindow();
     }
 
@@ -124,7 +127,7 @@ public class MyStepDef {
         step("Ожидался город: \"" + city + "\", а по факту: " + actualCity,
                 cityIsCorrect ? Status.PASSED : Status.FAILED);
         if(!cityIsCorrect){
-            markOuterStepAsFailedAndStop();;
+            markOuterStepAsFailedAndStop();
         }
 
     }
