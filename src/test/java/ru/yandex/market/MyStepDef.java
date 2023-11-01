@@ -58,6 +58,9 @@ public class MyStepDef {
         Configuration.holdBrowserOpen = true;
         Configuration.browserCapabilities = options;
         Configuration.headless = testProperties.beHeadless();
+        if (testProperties.activeProfileName().equals("env-test")) {
+            Configuration.remote = "http://localhost:4444/wd/hub";
+        }
         if(testProperties.useChromeProfile()) {
             options.addArguments("--user-data-dir=" + testProperties.chromeDir());
             options.addArguments("--profile-directory=" + testProperties.profileDir());
