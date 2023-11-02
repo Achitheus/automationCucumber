@@ -16,10 +16,12 @@ public interface TestProperties extends Config {
     @Key("use.chrome.profile")
     boolean useChromeProfile();
 
-    @Key("active.profile")
-    String activeProfileName();
+    @Key("profile.id")
+    String activeProfileId();
 
-    @Key("be.headless")
-    boolean beHeadless();
+    @Key("browser.headless")
+    boolean browserHeadless();
 
+    @Key("use.selenoid")
+    boolean useSelenoid();
 }
