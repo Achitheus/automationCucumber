@@ -53,9 +53,9 @@ public class MyStepDef {
                 .includeSelenideSteps(false));
         Configuration.timeout = 6_000;
         Configuration.headless = testProperties.beHeadless();
-        if (testProperties.activeProfileName().equals("env-test")) {
+        /*if (testProperties.activeProfileName().equals("env-test")) {
             Configuration.remote = "http://localhost:4444/wd/hub";
-        }
+        }*/
         if (!testProperties.beHeadless()) {
             Configuration.browserSize = "1920x1080";
             Configuration.holdBrowserOpen = true;

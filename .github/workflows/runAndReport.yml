@@ -21,8 +21,11 @@ jobs:
           cache: 'maven'
           distribution: 'zulu'
 
-      - name: Start selenoid
-        uses: Xotabu4/selenoid-github-action@v2
+#      - name: Start selenoid
+#        uses: Xotabu4/selenoid-github-action@v2
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+
 
       - name: Run Test
         run: ./mvnw verify -e -Dbrowser.headless=false -P env-test
