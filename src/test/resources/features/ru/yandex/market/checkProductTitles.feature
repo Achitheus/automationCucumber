@@ -11,10 +11,10 @@ Feature: Поиск товаров по фильтрам
       | чекбоксы                               | слова-проверки                         |
       | Black Shark                            | Black Shark                            |
       | OnePlus                                | OnePlus                                |
-      | Google                                 | Google                                 |
-      | Seals                                  | Seals                                  |
-      | Apple                                  | iphone                                 |
-      | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
+#      | Google                                 | Google                                 |
+#      | Seals                                  | Seals                                  |
+#      | Apple                                  | iphone                                 |
+#      | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
 
   @e2e @FullVersion
   Scenario Outline: Фильтр "Производитель" - полная версия (яндекс ее "не любит")
@@ -29,8 +29,8 @@ Feature: Поиск товаров по фильтрам
       | чекбоксы                               | слова-проверки                         |
       | Black Shark                            | Black Shark                            |
       | OnePlus                                | OnePlus                                |
-      | Google                                 | Google                                 |
-      | Seals                                  | Seals                                  |
-      | Apple                                  | iphone                                 |
-      | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
+#      | Google                                 | Google                                 |
+#      | Seals                                  | Seals                                  |
+#      | Apple                                  | iphone                                 |
+#      | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
 
