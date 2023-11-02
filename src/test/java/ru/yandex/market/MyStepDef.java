@@ -1,9 +1,6 @@
 package ru.yandex.market;
 
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.cucumber.java.After;
 import io.cucumber.java.BeforeAll;
@@ -29,8 +26,7 @@ import java.util.List;
 
 import static com.codeborne.selenide.Condition.match;
 import static com.codeborne.selenide.Condition.not;
-import static com.codeborne.selenide.Selenide.open;
-import static com.codeborne.selenide.Selenide.page;
+import static com.codeborne.selenide.Selenide.*;
 import static helpers.AllureCustom.markOuterStepAsFailedAndStop;
 import static helpers.Properties.testProperties;
 import static io.qameta.allure.Allure.step;
@@ -46,25 +42,37 @@ public class MyStepDef {
         return Arrays.asList(list.split(" *, *"));
     }
 
+    public static String editedUserAgent() {
+        open("http://github.com");
+        String currentUserAgent = Selenide.getUserAgent();
+        log.info("User agent supposed to change is: {}", currentUserAgent);
+        String userAgent = currentUserAgent.replaceAll("(Headless)", "");
+        log.info("User-Agent value can be used: {}", userAgent);
+        Selenide.closeWindow();
+        return userAgent;
+    }
+
     @BeforeAll
     public static void beforeScenario() {
-        log.info("Current active profile name is: " + testProperties.activeProfileName());
+        log.info("Current active profile name is: {}", testProperties.activeProfileId());
         SelenideLogger.addListener("Allure Selenide", new AllureSelenide()
                 .includeSelenideSteps(false));
+        ChromeOptions options = new ChromeOptions();
+        Configuration.browserCapabilities = options;
         Configuration.timeout = 6_000;
-        Configuration.headless = testProperties.beHeadless();
-        if (testProperties.activeProfileName().equals("env-test")) {
+        Configuration.headless = testProperties.browserHeadless();
+        if (testProperties.useSelenoid()) {
             Configuration.remote = "http://localhost:4444/wd/hub";
         }
-        if (!testProperties.beHeadless()) {
+        if (testProperties.browserHeadless()) {
+            options.addArguments("--user-agent=" + editedUserAgent());
+        } else {
             Configuration.browserSize = "1920x1080";
             Configuration.holdBrowserOpen = true;
         }
         if (testProperties.useChromeProfile()) {
-            ChromeOptions options = new ChromeOptions();
             options.addArguments("--user-data-dir=" + testProperties.chromeDir());
             options.addArguments("--profile-directory=" + testProperties.profileDir());
-            Configuration.browserCapabilities = options;
         }
 
     }
@@ -72,7 +80,7 @@ public class MyStepDef {
     @Step("Закрываю браузер, если используется")
     @After
     public void afterScenario() {
-        if (testProperties.beHeadless()) {
+        if (testProperties.browserHeadless()) {
             return;
         }
         Selenide.closeWindow();
@@ -80,7 +88,9 @@ public class MyStepDef {
 
     @Given("перейти на сайт {string}")
     public void goToPage(String url) {
+        log.info("Перехожу на сайт: {}", url);
         open(url);
+        log.info("Current user agent: " + Selenide.getUserAgent());
     }
 
     @Given("перейти в сервис {string}")

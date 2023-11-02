@@ -158,6 +158,7 @@
                 <profile.id>dev</profile.id>
                 <browser.headless>false</browser.headless>
                 <use.chrome.profile>true</use.chrome.profile>
+                <use.selenoid>false</use.selenoid>
             </properties>
         </profile>
         <profile>
@@ -166,6 +167,7 @@
                 <profile.id>test</profile.id>
                 <browser.headless>true</browser.headless>
                 <use.chrome.profile>false</use.chrome.profile>
+                <use.selenoid>true</use.selenoid>
             </properties>
         </profile>
     </profiles>
