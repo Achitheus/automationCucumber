@@ -23,13 +23,25 @@ jobs:
 
 #      - name: Start selenoid
 #        uses: Xotabu4/selenoid-github-action@v2
-      - uses: browser-actions/setup-chrome@v1
-      - run: chrome --version
+      - name: Install Dependencies
+        uses: actions/setup-node@v2
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+        with:
+          args: install
+      - name: Test Code
+        uses: mujo-code/puppeteer-headful@16.6.0
+        env:
+          CI: "true"
+        with:
+          args: ./mvnw verify -e -Dbrowser.headless=false -P env-test
+#      - uses: browser-actions/setup-chrome@v1
+#      - run: chrome --version
 
 
-      - name: Run Test
-        run: ./mvnw verify -e -Dbrowser.headless=false -P env-test
-        continue-on-error: true
+#      - name: Run Test
+#        run: ./mvnw verify -e -Dbrowser.headless=false -P env-test
+#        continue-on-error: true
 
       - name: Get Allure history
         uses: actions/checkout@v3
