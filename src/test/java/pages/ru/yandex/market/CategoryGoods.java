@@ -36,7 +36,6 @@ public class CategoryGoods extends MarketHeader{
      * @author Юрий Юрченко
      * @see CheckboxProcessMode
      */
-    @Step("Установка фильтров перечислений")
     public CategoryGoods setEnumFilters(Map<String, Set<String>> enumFilters, CheckboxProcessMode processMode) {
         for (Map.Entry<String, Set<String>> enumFilter : enumFilters.entrySet()) {
             setEnumFilterWithoutWait(enumFilter.getKey(), enumFilter.getValue(), processMode);
@@ -97,7 +96,6 @@ public class CategoryGoods extends MarketHeader{
      * @param processMode       Режим обработки чекбоксов.
      * @author Юрий Юрченко
      */
-    @Step("Обработка в фильтре перечислений \"{textInFilterTitle}\" чекбоксов: {targets}")
     private void setEnumFilterWithoutWait(String textInFilterTitle, Set<String> targets, CheckboxProcessMode processMode) {
         Set<String> mutableTargets = new HashSet<>(targets);
         SelenideElement filter = getFilterBy(textInFilterTitle);

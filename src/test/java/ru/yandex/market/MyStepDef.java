@@ -9,6 +9,9 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Allure;
+import io.qameta.allure.AllureId;
+import io.qameta.allure.AllureLifecycle;
 import io.qameta.allure.Step;
 import io.qameta.allure.model.Status;
 import io.qameta.allure.selenide.AllureSelenide;
@@ -23,6 +26,7 @@ import pages.ru.yandex.market.MarketMain;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -43,14 +47,6 @@ public class MyStepDef {
         return Arrays.asList(list.split(" *, *"));
     }
 
-    public static String getCurrentLocation() {
-        open("http://2ip.ru");
-        $(By.cssSelector(".notice__container__ok")).click();
-        String currentLocation = $(By.id("ip-info-city")).getText();
-        Selenide.closeWindow();
-        return currentLocation;
-    }
-
     public static String editedUserAgent() {
         open("http://github.com");
         String currentUserAgent = Selenide.getUserAgent();
@@ -69,7 +65,7 @@ public class MyStepDef {
         Configuration.headless = testProperties.browserHeadless();
         ChromeOptions options = new ChromeOptions();
         Configuration.browserCapabilities = options;
-        Configuration.timeout = 6_000;
+        Configuration.timeout = 3_000;
         Configuration.browserSize = "1920x1080";
         if (testProperties.useSelenoid()) {
             Configuration.remote = "http://localhost:4444/wd/hub";
@@ -81,7 +77,6 @@ public class MyStepDef {
             options.addArguments("--user-data-dir=" + testProperties.chromeDir());
             options.addArguments("--profile-directory=" + testProperties.profileDir());
         }
-        log.info("Current city by IP: {}", getCurrentLocation());
 
     }
 
@@ -96,7 +91,7 @@ public class MyStepDef {
 
     @Given("перейти на сайт {string}")
     public void goToPage(String url) {
-        log.info("Перехожу на сайт: {}", url);
+        log.info("Go to url: {}", url);
         open(url);
         log.info("Current user agent: " + Selenide.getUserAgent());
     }
@@ -122,8 +117,8 @@ public class MyStepDef {
         do {
             infinityCyclePreventer++;
             ElementsCollection productNameEls = categoryGoods.getPageProductNames();
-            log.debug("Страница {}. Число товаров: {}", infinityCyclePreventer, productNameEls.size());
-            log.trace("Названия товаров на {} странице: {}", infinityCyclePreventer, productNameEls.texts());
+            log.debug("Page {}. Goods count: {}", infinityCyclePreventer, productNameEls.size());
+            log.trace("Product names on the {} page: {}", infinityCyclePreventer, productNameEls.texts());
 
             SelenideElement badName = productNameEls.find(not(match("",
                     nameEl -> checkWords.stream().anyMatch(
@@ -132,17 +127,11 @@ public class MyStepDef {
             step("На стр. " + infinityCyclePreventer + " все названия товаров " +
                             "соответствуют фильтру \"Производитель\". Слова проверки: " + checkWords,
                     badNameExists ? Status.FAILED : Status.PASSED);
-//            Assertions.assertFalse(badNameExists, "На стр. " + infinityCyclePreventer + " наименование товара \""
-//                            + (badNameExists ? badName.getText() : "") + "\" не соответствует фильтру \"Производитель\". " +
-//                            "Слова проверки: " + checkWords
-//                    );
-           // if (badNameExists) {
-                badName.shouldNot(exist.because("На стр. " + infinityCyclePreventer + " наименование товара \""
-                        + (badNameExists ? badName.getText() : "") + "\" не соответствует фильтру \"Производитель\". " +
-                        "Слова проверки: " + checkWords));
-          //  }
+            badName.shouldNot(exist.because("На стр. " + infinityCyclePreventer + " наименование товара \""
+                    + (badNameExists ? badName.getText() : "") + "\" не соответствует фильтру \"Производитель\". " +
+                    "Слова проверки: " + checkWords));
         } while (categoryGoods.nextPage() && infinityCyclePreventer < 1000);
-        log.info("Обработано {} страниц товаров", infinityCyclePreventer);
+        log.info("Count of processed pages: {}", infinityCyclePreventer);
     }
 
     @And("\"мягко\" проверить, что город, определенный сервисом, {string}")
@@ -154,6 +143,6 @@ public class MyStepDef {
         if (!cityIsCorrect) {
             markOuterStepAsFailedAndStop();
         }
-
     }
+
 }
