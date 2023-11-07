@@ -88,12 +88,9 @@ public class MyStepDef {
 
     }
 
-    @Step("Закрываю браузер, если используется")
+    @Step("Закрываю браузер")
     @After
     public void afterScenario() {
-        if (testProperties.browserHeadless()) {
-            return;
-        }
         Selenide.closeWebDriver();
     }
 
