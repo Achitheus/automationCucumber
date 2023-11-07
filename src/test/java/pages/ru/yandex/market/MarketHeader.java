@@ -18,7 +18,6 @@ public class MarketHeader {
      * @return Пэйдж обджект страницы товаров.
      * @author Юрий Юрченко
      */
-    @Step("Переход в категорию товаров \"{category}\" внутри секции \"{section}\"")
     public CategoryGoods toSectionCategory(String section, String category) {
         clickOnCatalogButton();
         navigateToSection(section);

@@ -13,6 +13,7 @@ import io.qameta.allure.Step;
 import io.qameta.allure.model.Status;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.codeborne.selenide.Condition.match;
-import static com.codeborne.selenide.Condition.not;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static helpers.AllureCustom.markOuterStepAsFailedAndStop;
 import static helpers.Properties.testProperties;
@@ -42,13 +42,24 @@ public class MyStepDef {
         return Arrays.asList(list.split(" *, *"));
     }
 
+    public static String getCurrentLocation() {
+        open("http://2ip.ru");
+        SelenideElement acceptCookie = $(By.cssSelector(".notice__container__ok"));
+        if(acceptCookie.exists()) {
+            acceptCookie.click();
+        }
+        String currentLocation = $(By.id("ip-info-city")).getText();
+        Selenide.closeWebDriver();
+        return currentLocation;
+    }
+
     public static String editedUserAgent() {
         open("http://github.com");
         String currentUserAgent = Selenide.getUserAgent();
         log.info("User agent supposed to change is: {}", currentUserAgent);
         String userAgent = currentUserAgent.replaceAll("(Headless)", "");
         log.info("User-Agent value can be used: {}", userAgent);
-        Selenide.closeWindow();
+        Selenide.closeWebDriver();
         return userAgent;
     }
 
@@ -63,12 +74,12 @@ public class MyStepDef {
         Configuration.headless = testProperties.browserHeadless();
         if (testProperties.useSelenoid()) {
             Configuration.remote = "http://localhost:4444/wd/hub";
+            log.info("Current location by IP is: {}", getCurrentLocation());
         }
         if (testProperties.browserHeadless()) {
             options.addArguments("--user-agent=" + editedUserAgent());
         } else {
             Configuration.browserSize = "1920x1080";
-            Configuration.holdBrowserOpen = true;
         }
         if (testProperties.useChromeProfile()) {
             options.addArguments("--user-data-dir=" + testProperties.chromeDir());
@@ -83,12 +94,12 @@ public class MyStepDef {
         if (testProperties.browserHeadless()) {
             return;
         }
-        Selenide.closeWindow();
+        Selenide.closeWebDriver();
     }
 
     @Given("перейти на сайт {string}")
     public void goToPage(String url) {
-        log.info("Перехожу на сайт: {}", url);
+        log.info("Go to url: {}", url);
         open(url);
         log.info("Current user agent: " + Selenide.getUserAgent());
     }
@@ -124,12 +135,9 @@ public class MyStepDef {
             step("На стр. " + infinityCyclePreventer + " все названия товаров " +
                             "соответствуют фильтру \"Производитель\": " + checkWords,
                     badNameExists ? Status.FAILED : Status.PASSED);
-            if (badNameExists) {
-                Assertions.fail("На стр. " + infinityCyclePreventer + " наименование товара \""
-                        + badName.getText() + "\" не соответствует фильтру \"Производитель\". " +
-                        "Слова проверки: " + checkWords
-                );
-            }
+            badName.shouldNot(exist.because("На стр. " + infinityCyclePreventer + " наименование товара \""
+                    + (badNameExists ? badName.getText() : "") + "\" не соответствует фильтру \"Производитель\". " +
+                    "Слова проверки: " + checkWords));
         } while (categoryGoods.nextPage() && infinityCyclePreventer < 1000);
         log.info("Обработано {} страниц товаров", infinityCyclePreventer);
     }

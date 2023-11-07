@@ -2,7 +2,6 @@ package pages.ru.yandex.market;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +11,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.codeborne.selenide.CollectionCondition.containExactTextsCaseSensitive;
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$$x;
 import static com.codeborne.selenide.Selenide.$x;
 import static helpers.SelenideCustom.metCondition;
 
-public class CategoryGoods extends MarketHeader{
+public class CategoryGoods extends MarketHeader {
     public static final Logger log = LoggerFactory.getLogger(CategoryGoods.class);
 
     private final String productNamesSelector = "//*[@id='searchResults']//*[@data-auto='snippet-title-header']";
@@ -36,7 +35,6 @@ public class CategoryGoods extends MarketHeader{
      * @author Юрий Юрченко
      * @see CheckboxProcessMode
      */
-    @Step("Установка фильтров перечислений")
     public CategoryGoods setEnumFilters(Map<String, Set<String>> enumFilters, CheckboxProcessMode processMode) {
         for (Map.Entry<String, Set<String>> enumFilter : enumFilters.entrySet()) {
             setEnumFilterWithoutWait(enumFilter.getKey(), enumFilter.getValue(), processMode);
@@ -97,11 +95,10 @@ public class CategoryGoods extends MarketHeader{
      * @param processMode       Режим обработки чекбоксов.
      * @author Юрий Юрченко
      */
-    @Step("Обработка в фильтре перечислений \"{textInFilterTitle}\" чекбоксов: {targets}")
     private void setEnumFilterWithoutWait(String textInFilterTitle, Set<String> targets, CheckboxProcessMode processMode) {
         Set<String> mutableTargets = new HashSet<>(targets);
         SelenideElement filter = getFilterBy(textInFilterTitle);
-        processAvailableCheckBoxes(filter, mutableTargets, processMode, false);
+        processAvailableCheckboxes(filter, mutableTargets, processMode, false);
         if (mutableTargets.isEmpty())
             return;
         expandCheckboxListAvoidingBug(filter);
@@ -110,7 +107,7 @@ public class CategoryGoods extends MarketHeader{
             processEnumFilterWithSearchField(filter, mutableTargets, processMode);
         } else {
             log.debug("Асинхронный скроллер в фильтре \"{}\" не обнаружен", textInFilterTitle);
-            processAvailableCheckBoxes(filter, mutableTargets, processMode, true);
+            processAvailableCheckboxes(filter, mutableTargets, processMode, true);
         }
     }
 
@@ -146,34 +143,28 @@ public class CategoryGoods extends MarketHeader{
      * и обрабатывает их в соответствии с {@code processMode}.
      * Чувствителен к регистру, проверяет на точное соответствие. <p>
      * Предполагается, что метод следует вызывать дважды: до раскрытия списка чекбоксов
-     * (со значением {@code strictMode = false}) и после (со {@code strictMode = true}).
+     * (со значением {@code afterExpanding = false}) и после (с {@code afterExpanding = true}).
      *
      * @param filter         Фильтр, в котором обрабатываются чекбоксы.
      * @param mutableTargets Названия чекбоксов, которые следует обработать.
      * @param processMode    Режим обработки чекбоксов.
-     * @param strictMode     Режим работы. При {@code false}, метод не падает с ошибкой, когда среди
-     *                       {@code mutableTargets} обнаруживается название для которого
-     *                       на странице нет соответствующего чекбокса.
+     * @param afterExpanding При {@code true}, метод падает с ошибкой, если
+     *                       {@code mutableTargets} не является подмножеством доступных
+     *                       на странице чекбоксов.
      * @author Юрий Юрченко
      */
-    private void processAvailableCheckBoxes(SelenideElement filter, Set<String> mutableTargets, CheckboxProcessMode processMode, boolean strictMode) {
+    private void processAvailableCheckboxes(SelenideElement filter, Set<String> mutableTargets, CheckboxProcessMode processMode, boolean afterExpanding) {
         ElementsCollection checkboxList = filter.$$x(".//*[@data-zone-name = 'FilterValue']").shouldHave(sizeGreaterThan(0));
-        if (strictMode)
-            checkboxList.shouldHave(containExactTextsCaseSensitive(mutableTargets.toArray(new String[0])));
         log.debug("В текущем фильтре обнаружено {} чекбоксов. Обрабатываю", checkboxList.size());
-        for (SelenideElement checkbox : checkboxList) {
-            String checkboxName = checkbox.getText();
-            String target = mutableTargets.stream().filter(
-                    checkboxName::equals).findFirst().orElse("");
-            if (target.isEmpty()) {
-                continue;
-            }
+        ElementsCollection requiredCheckboxes = checkboxList.filterBy(match(
+                "Среди доступных чекбоксов ищем подходящие",
+                el -> mutableTargets.stream().anyMatch(str -> str.equals(el.getText()))));
+        if (afterExpanding) {
+            requiredCheckboxes.shouldHave(size(mutableTargets.size()));
+        }
+        for (SelenideElement checkbox : requiredCheckboxes) {
             clickCheckboxIfNecessary(checkbox, processMode);
-            mutableTargets.remove(target);
-            if (mutableTargets.isEmpty()) {
-                log.info("Все заданные чекбоксы обработаны");
-                return;
-            }
+            mutableTargets.remove(checkbox.getText());
         }
     }
 
@@ -218,7 +209,7 @@ public class CategoryGoods extends MarketHeader{
     private void waitGoodsLoading() {
         SelenideElement spinner = $x("//*[@data-grabber='SearchSerp']//*[@data-auto='spinner']");
         log.trace("Ожидаю появления спиннера загрузки товаров");
-        if (spinner.execute(metCondition(el -> el.should(appear, Duration.ofSeconds(1))))) {
+        if (spinner.execute(metCondition(appear, Duration.ofSeconds(1)))) {
             log.trace("Спиннер загрузки товаров появился");
             spinner.should(disappear);
         } else {
@@ -264,7 +255,7 @@ public class CategoryGoods extends MarketHeader{
         log.debug("На случай если список свернется (баг): " +
                 "жду повторного появления кнопки \"развернуть\"");
         SelenideElement expandButton = filter.$(By.tagName("button"));
-        if (!expandButton.execute(metCondition(el -> el.shouldBe(visible, Duration.ofSeconds(3))))) {
+        if (!expandButton.execute(metCondition(visible, Duration.ofSeconds(3)))) {
             log.debug("Кнопка \"развернуть/свернуть\" не появилась");
             return;
         }

@@ -13,7 +13,6 @@ public class YandexMain {
      * @param serviceName Название сервиса, в который следует перейти.
      * @author Юрий Юрченко
      */
-    @Step("Переход в сервис \"{serviceName}\"")
     public void goToService(String serviceName) {
         $x("//input[@id='text' and @aria-label='Запрос']").click();
         if (!goToServiceFast(serviceName)) {
