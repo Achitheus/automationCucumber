@@ -130,7 +130,8 @@ public class MyStepDef {
                             brand -> nameEl.getText().toLowerCase().contains(brand.toLowerCase())))));
             boolean badNameExists = badName.exists();
             step("На стр. " + infinityCyclePreventer + " все названия товаров " +
-                            "соответствуют фильтру \"Производитель\": " + checkWords,
+                            "соответствуют фильтру \"Производитель\". "+
+                            "Слова проверки: " + checkWords,
                     badNameExists ? Status.FAILED : Status.PASSED);
             badName.shouldNot(exist.because("На стр. " + infinityCyclePreventer + " наименование товара \""
                     + (badNameExists ? badName.getText() : "") + "\" не соответствует фильтру \"Производитель\". " +

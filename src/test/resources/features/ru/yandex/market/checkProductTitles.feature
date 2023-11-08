@@ -1,21 +1,5 @@
 Feature: Поиск товаров по фильтрам
 
-  @ShortVersion
-  Scenario Outline: Фильтр "Производитель" - короткая версия (меньше триггерит капчу)
-    Given перейти на сайт 'https://market.yandex.ru/catalog--smartfony/26893750/'
-    And "мягко" проверить, что город, определенный сервисом, "Москва"
-    When фильтр 'Производитель' установлен значениями: <чекбоксы>
-    Then все названия товаров содержат одно из ключевых слов: <слова-проверки>
-
-    Examples:
-      | чекбоксы                               | слова-проверки                         |
-      | Black Shark                            | Black Shark                            |
-      | OnePlus                                | OnePlus                                |
-      | Google                                 | Google                                 |
-      | Seals                                  | Seals                                  |
-      | Apple                                  | iphone                                 |
-      | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
-
   @e2e @FullVersion
   Scenario Outline: Фильтр "Производитель" - полная версия (яндекс ее "не любит")
     Given перейти на сайт 'http://ya.ru'
@@ -32,5 +16,6 @@ Feature: Поиск товаров по фильтрам
       | Google                                 | Google                                 |
       | Seals                                  | Seals                                  |
       | Apple                                  | iphone                                 |
+      | ASUS                                   | ASUS                                   |
       | Black Shark,OnePlus, Google,Seals,ASUS | Black Shark,OnePlus, Google,Seals,ASUS |
 
