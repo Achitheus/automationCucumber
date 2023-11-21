@@ -13,10 +13,10 @@ public interface TestProperties extends Config {
     @Key("chrome.profile.dir")
     String profileDir();
 
-    @Key("use.chrome.profile")
+    @Key("use.browser.profile")
     boolean useChromeProfile();
 
-    @Key("profile.id")
+    @Key("maven.profile")
     String activeProfileId();
 
     @Key("browser.headless")

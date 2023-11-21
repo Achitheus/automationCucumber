@@ -155,19 +155,19 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <profile.id>dev</profile.id>
-                <browser.headless>false</browser.headless>
-                <use.chrome.profile>true</use.chrome.profile>
-                <use.selenoid>false</use.selenoid>
+                <mavenProfile>env-dev</mavenProfile>
+                <headless>false</headless>
+                <useBrowserProfile>true</useBrowserProfile>
+                <useSelenoid>false</useSelenoid>
             </properties>
         </profile>
         <profile>
             <id>env-test</id>
             <properties>
-                <profile.id>test</profile.id>
-                <browser.headless>true</browser.headless>
-                <use.chrome.profile>false</use.chrome.profile>
-                <use.selenoid>true</use.selenoid>
+                <mavenProfile>env-test</mavenProfile>
+                <headless>true</headless>
+                <useBrowserProfile>false</useBrowserProfile>
+                <useSelenoid>true</useSelenoid>
             </properties>
         </profile>
     </profiles>
